@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Assignment\\New folder\\SalesApp.API\\SalesApp.API.csproj": {}
+    "D:\\Assignment\\New folder\\SalesApp.APi\\SalesApp.API.csproj": {}
   },
   "projects": {
-    "D:\\Assignment\\New folder\\SalesApp.API\\SalesApp.API.csproj": {
+    "D:\\Assignment\\New folder\\SalesApp.APi\\SalesApp.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Assignment\\New folder\\SalesApp.API\\SalesApp.API.csproj",
+        "projectUniqueName": "D:\\Assignment\\New folder\\SalesApp.APi\\SalesApp.API.csproj",
         "projectName": "SalesApp.API",
-        "projectPath": "D:\\Assignment\\New folder\\SalesApp.API\\SalesApp.API.csproj",
+        "projectPath": "D:\\Assignment\\New folder\\SalesApp.APi\\SalesApp.API.csproj",
         "packagesPath": "C:\\Users\\MSI-PC\\.nuget\\packages\\",
-        "outputPath": "D:\\Assignment\\New folder\\SalesApp.API\\obj\\",
+        "outputPath": "D:\\Assignment\\New folder\\SalesApp.APi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tv4g/IKjJVk=",
+  "dgSpecHash": "lktLKFjT2bQ=",
   "success": true,
-  "projectFilePath": "D:\\Assignment\\New folder\\SalesApp.API\\SalesApp.API.csproj",
+  "projectFilePath": "D:\\Assignment\\New folder\\SalesApp.APi\\SalesApp.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\MSI-PC\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\MSI-PC\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

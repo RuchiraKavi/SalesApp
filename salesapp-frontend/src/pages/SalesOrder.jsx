@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { fetchClients, fetchItems } from "../redux/slices/clientSlice";
 import { fetchOrderById, createOrder, updateOrder, clearCurrent } from "../redux/slices/orderSlice";
 
@@ -22,20 +22,48 @@ export default function SalesOrder() {
     items: [],
   });
 
+  const location = useLocation();
+
   useEffect(() => {
-    // Clear the previous order when component mounts or id changes
-    if (id) {
-      initialized.current = false;
-      dispatch(clearCurrent());
-    }
-    
+    // If navigation passed an order via state, use it to prefill immediately.
+    // Otherwise clear current and fetch from API when id is present.
     dispatch(fetchClients());
     dispatch(fetchItems());
 
     if (id) {
-      dispatch(fetchOrderById(id));
+      const navOrder = location?.state?.order;
+      if (navOrder && Number(navOrder.id) === Number(id)) {
+        // map navOrder to local state shape
+        const mappedItems = (navOrder.items || []).map((i) => ({
+          itemId: i.itemId,
+          quantity: i.quantity,
+          taxRate: i.taxRate,
+          exclAmount: i.exclAmount || 0,
+          taxAmount: i.taxAmount || 0,
+          inclAmount: i.inclAmount || 0,
+          note: i.note,
+        }));
+
+        setOrder({
+          clientId: navOrder.clientId,
+          invoiceNo: navOrder.invoiceNo,
+          invoiceDate: navOrder.invoiceDate?.slice(0, 10),
+          referenceNo: navOrder.referenceNo,
+          note: navOrder.note,
+          items: mappedItems,
+        });
+
+        initialized.current = true;
+        // also update current in store by dispatching fetchOrderById in background if you want freshest data
+      } else {
+        initialized.current = false;
+        dispatch(clearCurrent());
+        dispatch(fetchOrderById(id));
+      }
+    } else {
+      dispatch(clearCurrent());
     }
-  }, [dispatch, id]);
+  }, [dispatch, id, location]);
 
   useEffect(() => {
     if (id && current && !initialized.current) {
@@ -85,17 +113,22 @@ export default function SalesOrder() {
       copy.items = copy.items.map((it, idx) =>
         idx === index ? { ...it, [field]: value } : it
       );
-
-      const line = copy.items[index];
-      const item = items.find((x) => x.id === Number(line.itemId));
-      const price = item ? item.price : 0;
-
-      line.exclAmount = (Number(line.quantity) || 0) * price;
-      line.taxAmount = (line.exclAmount * (Number(line.taxRate) || 0)) / 100;
-      line.inclAmount = line.exclAmount + line.taxAmount;
-
       return copy;
     });
+  };
+
+  // Compute line amounts (excl/tax/incl) on render using current `items` prices.
+  const computeLineAmounts = (line) => {
+    const item = items.find((x) => x.id === Number(line.itemId));
+    const price = item ? item.price : 0;
+    const quantity = Number(line.quantity) || 0;
+    const taxRate = Number(line.taxRate) || 0;
+
+    const exclAmount = quantity * price;
+    const taxAmount = (exclAmount * taxRate) / 100;
+    const inclAmount = exclAmount + taxAmount;
+
+    return { price, exclAmount, taxAmount, inclAmount };
   };
 
   const save = async () => {
@@ -126,9 +159,16 @@ export default function SalesOrder() {
 
   const clientSelected = clients.find((c) => c.id === Number(order.clientId));
 
-  const totalExcl = order.items.reduce((s, it) => s + (it.exclAmount || 0), 0);
-  const totalTax = order.items.reduce((s, it) => s + (it.taxAmount || 0), 0);
-  const totalIncl = order.items.reduce((s, it) => s + (it.inclAmount || 0), 0);
+  const totals = order.items.reduce((acc, it) => {
+    const { exclAmount, taxAmount, inclAmount } = computeLineAmounts(it);
+    acc.excl += Number(exclAmount || 0);
+    acc.tax += Number(taxAmount || 0);
+    acc.incl += Number(inclAmount || 0);
+    return acc;
+  }, { excl: 0, tax: 0, incl: 0 });
+  const totalExcl = totals.excl;
+  const totalTax = totals.tax;
+  const totalIncl = totals.incl;
 
   return (
   <div className="min-h-screen bg-gray-100 p-4">
@@ -296,7 +336,7 @@ export default function SalesOrder() {
                 </td>
 
                 <td className="border text-right">
-                  {item?.price?.toFixed(2)}
+                  {(computeLineAmounts(line).price ?? 0).toFixed(2)}
                 </td>
 
                 <td className="border">
@@ -308,9 +348,9 @@ export default function SalesOrder() {
                   />
                 </td>
 
-                <td className="border text-right">{line.exclAmount.toFixed(2)}</td>
-                <td className="border text-right">{line.taxAmount.toFixed(2)}</td>
-                <td className="border text-right">{line.inclAmount.toFixed(2)}</td>
+                <td className="border text-right">{(computeLineAmounts(line).exclAmount || 0).toFixed(2)}</td>
+                <td className="border text-right">{(computeLineAmounts(line).taxAmount || 0).toFixed(2)}</td>
+                <td className="border text-right">{(computeLineAmounts(line).inclAmount || 0).toFixed(2)}</td>
 
                 <td className="border text-center">
                   <button className="text-red-600" onClick={() => removeLine(idx)}>

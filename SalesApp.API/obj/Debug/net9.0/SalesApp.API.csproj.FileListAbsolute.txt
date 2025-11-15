@@ -139,3 +139,4 @@ d:\Assignment\New folder\SalesApp.API\obj\Debug\net9.0\refint\SalesApp.API.dll
 d:\Assignment\New folder\SalesApp.API\obj\Debug\net9.0\SalesApp.API.pdb
 d:\Assignment\New folder\SalesApp.API\obj\Debug\net9.0\SalesApp.API.genruntimeconfig.cache
 d:\Assignment\New folder\SalesApp.API\obj\Debug\net9.0\ref\SalesApp.API.dll
+D:\Assignment\New folder\SalesApp.APi\obj\Debug\net9.0\SalesApp.API.sourcelink.json

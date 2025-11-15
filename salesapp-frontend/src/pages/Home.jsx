@@ -12,8 +12,10 @@ export default function Home(){
     dispatch(fetchOrders());
   }, [dispatch]);
 
-  const handleEdit = (orderId) => {
-    navigate(`/order/${orderId}`);
+  const handleEdit = (order) => {
+    // pass the order in navigation state so the SalesOrder page
+    // can prefill immediately without waiting for an API roundtrip
+    navigate(`/order/${order.id}`, { state: { order } });
   };
 
   const handleAddNew = () => {
@@ -71,7 +73,7 @@ export default function Home(){
           <tr
             key={o.id}
             className="hover:bg-gray-50 transition"
-            onDoubleClick={() => handleEdit(o.id)}
+            onDoubleClick={() => handleEdit(o)}
           >
             <td className="px-6 py-4 text-sm font-medium text-gray-900 border border-gray-300">{o.invoiceNo}</td>
             <td className="px-6 py-4 text-sm text-gray-700 border border-gray-300">{o.client?.customerName || "-"}</td>
@@ -80,13 +82,13 @@ export default function Home(){
             </td>
             <td className="px-6 py-4 text-sm text-gray-700 border border-gray-300">{o.referenceNo || "-"}</td>
             <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right border border-gray-300">
-              ${(o.totalIncl || 0).toFixed(2)}
+              Rs. {(o.totalIncl || 0).toFixed(2)}
             </td>
             <td className="px-6 py-4 text-center border border-gray-300">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleEdit(o.id);
+                  handleEdit(o);
                 }}
                 className="inline-block px-4 py-2 bg-gray-200 border border-gray-300 hover:bg-gray-300 text-black rounded text-sm font-medium"
               >
