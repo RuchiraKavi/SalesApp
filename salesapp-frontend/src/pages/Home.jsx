@@ -1,21 +1,33 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "../redux/slices/orderSlice";
+import { fetchItems, fetchClients } from "../redux/slices/clientSlice";
+import { generateOrderPdf } from "../services/pdf";
 import { useNavigate } from "react-router-dom";
 
 export default function Home(){
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { list, loading } = useSelector(state => state.orders);
+  const { items } = useSelector((state) => state.clients);
 
   useEffect(() => {
     dispatch(fetchOrders());
+    // fetch items & clients to be able to render/print full order details
+    dispatch(fetchItems());
+    dispatch(fetchClients());
   }, [dispatch]);
 
   const handleEdit = (order) => {
     // pass the order in navigation state so the SalesOrder page
     // can prefill immediately without waiting for an API roundtrip
     navigate(`/order/${order.id}`, { state: { order } });
+  };
+
+  const handlePrint = (order) => {
+    // find client for this order
+    const client = order.client || null;
+    generateOrderPdf(order, client, items || []);
   };
 
   const handleAddNew = () => {
@@ -85,6 +97,7 @@ export default function Home(){
               Rs. {(o.totalIncl || 0).toFixed(2)}
             </td>
             <td className="px-6 py-4 text-center border border-gray-300">
+              <div className="flex gap-2 justify-center">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -94,6 +107,13 @@ export default function Home(){
               >
                 Edit
               </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handlePrint(o); }}
+                className="inline-block px-4 py-2 bg-blue-600 border border-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
+              >
+                Print
+              </button>
+              </div>
             </td>
           </tr>
         ))}
